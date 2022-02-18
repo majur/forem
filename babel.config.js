@@ -69,6 +69,33 @@ module.exports = function (api) {
           pragma: 'h',
         },
       ],
+      [
+        'inline-react-svg',
+        {
+          svgo: {
+            plugins: [
+              {
+                name: 'preset-default',
+                params: {
+                  overrides: {
+                    removeViewBox: false,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+      [
+        'module-resolver',
+        {
+          // Only the @images webpack alias is here because it's being used by a
+          // Babel plugin before webpack runs in the frontend build pipeline.
+          alias: {
+            '@images': './app/assets/images/',
+          },
+        },
+      ],
     ].filter(Boolean),
   };
 };

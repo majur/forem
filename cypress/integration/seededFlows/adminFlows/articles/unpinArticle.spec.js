@@ -16,25 +16,24 @@ describe('Unpin an article from the admin area', () => {
             tags: ['beginner', 'ruby', 'go'],
             content: `This is another test article's contents.`,
             published: true,
-          }).then((response) => {
-            cy.visit(`/admin/content_manager/articles/${response.body.id}`);
+          }).then(() => {
+            cy.visit('/admin/content_manager/articles');
           });
         });
       });
     });
   });
 
-  it('should not display the "Unpin Post" button by default', () => {
-    cy.findByRole('button', { name: 'Unpin Post' }).should('not.exist');
+  it('should not display the "Unpin post" button by default', () => {
+    cy.findByRole('link', { name: 'Unpin post' }).should('not.exist');
   });
 
   it('should unpin the pinned article', () => {
-    cy.findAllByRole('checkbox', { name: 'Pinned' }).first().check();
-    cy.findAllByRole('button', { name: 'Submit' }).first().click();
+    cy.findAllByRole('button', { name: 'Pin post' }).first().click();
 
-    cy.findAllByRole('link', { name: 'Unpin Post' }).first().click();
+    cy.findAllByRole('link', { name: 'Unpin post' }).first().click();
 
-    cy.findAllByRole('link', { name: 'Unpin Post' }).should('not.exist');
-    cy.findAllByRole('checkbox', { name: 'Pinned' }).should('not.be.checked');
+    cy.findAllByRole('link', { name: 'Unpin post' }).should('not.exist');
+    cy.findByTestId('pinned-indicator').should('not.exist');
   });
 });

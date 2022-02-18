@@ -16,7 +16,7 @@ describe('addCloseListener()', () => {
         </button>
       </div>
       <div id="mod-actions-menu-btn-area">
-        <div class="mod-actions-menu-btn crayons-btn crayons-btn--icon-rounded crayons-btn--s hidden">
+        <div class="mod-actions-menu-btn crayons-btn crayons-btn--icon-rounded crayons-btn--s">
         </div>
       </div>
     </body>
@@ -29,11 +29,7 @@ describe('addCloseListener()', () => {
     closeButton.click();
     // eslint-disable-next-line no-restricted-globals
     const modPanel = top.document.getElementsByClassName('mod-actions-menu')[0];
-    const modPanelBtn = top.document.getElementsByClassName(
-      'mod-actions-menu-btn',
-    )[0];
     expect(modPanel.classList).not.toContain('showing');
-    expect(modPanelBtn.classList).not.toContain('hidden');
   });
 });
 
@@ -164,7 +160,7 @@ describe('addAdjustTagListeners()', () => {
       <button class="adjustable-tag" data-adjustment-type="subtract" data-tag-name="${tagName}">
         #${tagName}
       </button>
-      <form id="adjustment-reason-container" class="adjustment-reason-container hidden">
+      <form id="adjustment-reason-container" class="adjustment-reason-container">
         <textarea class="crayons-textfield" placeholder="Reason for tag adjustment (required)" id="tag-adjustment-reason" required></textarea>
         <button class="crayons-btn" id="tag-adjust-submit" type="submit">Submit</button>
       </form>
@@ -177,17 +173,6 @@ describe('addAdjustTagListeners()', () => {
         const tagBtn = document.getElementsByClassName('adjustable-tag')[0];
         tagBtn.click();
         expect(tagBtn.classList).toContain('active');
-        expect(
-          document.getElementById('adjustment-reason-container').classList,
-        ).not.toContain('hidden');
-      });
-      it('hides the form if the button is clicked again', () => {
-        const tagBtn = document.getElementsByClassName('adjustable-tag')[0];
-        tagBtn.click();
-        tagBtn.click();
-        expect(
-          document.getElementById('adjustment-reason-container').classList,
-        ).toContain('hidden');
       });
     });
   });
@@ -207,7 +192,7 @@ describe('addAdjustTagListeners()', () => {
           <button class="adjustable-tag" data-adjustment-type="subtract" data-tag-name="ruby">
             #ruby
           </button>
-          <form id="adjustment-reason-container" class="adjustment-reason-container hidden">
+          <form id="adjustment-reason-container" class="adjustment-reason-container">
             <textarea class="crayons-textfield" placeholder="Reason for tag adjustment" id="tag-adjustment-reason" required></textarea>
             <button class="crayons-btn" id="tag-adjust-submit" type="submit">Submit</button>
           </form>

@@ -1,13 +1,12 @@
 module Users
   class NotificationSettingsController < ApplicationController
-    before_action :raise_suspended
+    before_action :check_suspended
     before_action :authenticate_user!
     after_action :verify_authorized
 
     ALLOWED_PARAMS = %i[email_badge_notifications
                         email_comment_notifications
                         email_community_mod_newsletter
-                        email_connect_messages
                         email_digest_periodic
                         email_follower_notifications
                         email_membership_newsletter
@@ -16,6 +15,7 @@ module Users
                         email_tag_mod_newsletter
                         email_unread_notifications
                         mobile_comment_notifications
+                        mobile_mention_notifications
                         mod_roundrobin_notifications
                         reaction_notifications
                         welcome_notifications].freeze

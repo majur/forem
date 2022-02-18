@@ -28,10 +28,9 @@ RSpec.describe Articles::Feeds::Basic, type: :service do
     let(:feed) { described_class.new(user: user, number_of_articles: 100, page: 1) }
 
     it "returns articles with score above 0 sorted by user preference scores" do
-      allow(feed).to receive(:user_following_users_ids).and_return([old_story.user_id])
+      user.follow(old_story.user)
       old_story_tag = Tag.find_by(name: unique_tag_name)
-      old_story_tag.update(points: 10)
-      allow(feed).to receive(:user_followed_tags).and_return([old_story_tag])
+      user.follow(old_story_tag)
 
       result = feed.feed
       expect(result.first).to eq old_story
@@ -44,16 +43,6 @@ RSpec.describe Articles::Feeds::Basic, type: :service do
       create(:user_block, blocker: user, blocked: second_user, config: "default")
       result = feed.feed
       expect(result).not_to include(hot_story)
-    end
-
-    it "doesn't display blocked articles", type: :system, js: true do
-      selector = "article[data-content-user-id='#{hot_story.user_id}']"
-      sign_in user
-      visit root_path
-      expect(page).to have_selector(selector, visible: :visible)
-      create(:user_block, blocker: user, blocked: hot_story.user, config: "default")
-      visit root_path
-      expect(page).to have_selector(selector, visible: :hidden)
     end
   end
 end

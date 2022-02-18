@@ -3,8 +3,11 @@ require "rails_helper"
 RSpec.describe "Tags", type: :request, proper_status: true do
   describe "GET /tags" do
     it "returns proper page" do
+      create(:tag, name: "ruby")
+      create(:tag, name: "javascript", alias_for: "")
+
       get tags_path
-      expect(response.body).to include("Top tags")
+      expect(response.body).to include("Top tags", "ruby", "javascript")
     end
 
     it "does not include tags with alias" do
@@ -14,11 +17,27 @@ RSpec.describe "Tags", type: :request, proper_status: true do
       get tags_path
       expect(response.body).not_to include("aliastag")
     end
+
+    it "searches tags", :aggregate_failures do
+      %w[ruby java javascript].each { |t| create(:tag, name: t) }
+
+      get tags_path(q: "ruby")
+      expect(response.body).to include("Search results for ruby", "ruby")
+      expect(response.body).not_to include("javascript")
+
+      get tags_path(q: "java")
+      expect(response.body).to include("Search results for java", "java", "javascript")
+      expect(response.body).not_to include("ruby")
+
+      get tags_path(q: "yeet")
+      expect(response.body).to include("No results match that query")
+    end
   end
 
   describe "GET /tags/suggest" do
     it "returns a JSON representation of the top tags", :aggregate_failures do
-      tag = create(:tag)
+      badge = create(:badge)
+      tag = create(:tag, badge: badge)
 
       get suggest_tags_path
 
@@ -27,6 +46,10 @@ RSpec.describe "Tags", type: :request, proper_status: true do
       response_tag = JSON.parse(response.body).first
       expect(response_tag["name"]).to eq(tag.name)
       expect(response_tag).to have_key("rules_html")
+      expect(response_tag).to have_key("short_summary")
+      expect(response_tag).to have_key("bg_color_hex")
+      expect(response_tag).to have_key("badge")
+      expect(response_tag["badge"]).to have_key("badge_image")
     end
   end
 
@@ -55,7 +78,7 @@ RSpec.describe "Tags", type: :request, proper_status: true do
     it "allows super admins" do
       sign_in super_admin
       get "/t/#{tag}/edit"
-      expect(response.body).to include("Click here to see an example of attributes.")
+      expect(response.body).to include(I18n.t("views.tags.edit.help"))
     end
 
     context "when user is a tag moderator" do
@@ -66,7 +89,7 @@ RSpec.describe "Tags", type: :request, proper_status: true do
 
       it "allows authorized tag moderators" do
         get "/t/#{tag}/edit"
-        expect(response.body).to include("Click here to see an example of attributes.")
+        expect(response.body).to include(I18n.t("views.tags.edit.help"))
       end
 
       it "does not allow moderators of one tag to edit another tag" do

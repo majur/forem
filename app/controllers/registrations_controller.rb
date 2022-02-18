@@ -15,7 +15,7 @@ class RegistrationsController < Devise::RegistrationsController
     authorize(params, policy_class: RegistrationPolicy)
 
     unless recaptcha_verified?
-      flash[:notice] = "You must complete the recaptcha ✅"
+      flash[:notice] = I18n.t("registrations_controller.error.recaptcha")
       return redirect_to new_user_registration_path(state: "email_signup")
     end
 
@@ -28,7 +28,11 @@ class RegistrationsController < Devise::RegistrationsController
         redirect_to confirm_email_path(email: resource.email)
       else
         sign_in(resource)
-        redirect_to root_path
+        if resource.roles.includes(:creator).any?
+          redirect_to new_admin_creator_setting_path
+        else
+          redirect_to root_path
+        end
       end
     else
       render action: "by_email"
@@ -60,11 +64,13 @@ class RegistrationsController < Devise::RegistrationsController
 
   def check_allowed_email(resource)
     domain = resource.email.split("@").last
-    allow_list = Settings::Authentication.allowed_registration_email_domains
-    return if allow_list.empty? || allow_list.include?(domain)
+    return true if Settings::Authentication.acceptable_domain?(domain: domain)
 
     resource.email = nil
-    resource.errors.add(:email, "is not included in allowed domains.")
+    # Alright, this error message isn't quite correct.  Is the email
+    # from a blocked domain?  Or an explicitly allowed domain.  I
+    # think this is enough.
+    resource.errors.add(:email, I18n.t("registrations_controller.error.domain"))
   end
 
   def build_devise_resource
@@ -72,7 +78,7 @@ class RegistrationsController < Devise::RegistrationsController
     resource.registered_at = Time.current
     resource.build_setting(editor_version: "v2")
     resource.remote_profile_image_url = Users::ProfileImageGenerator.call if resource.profile_image.blank?
-    if FeatureFlag.enabled?(:creator_onboarding)
+    if Settings::General.waiting_on_first_user
       resource.password_confirmation = resource.password
     end
     check_allowed_email(resource) if resource.email.present?

@@ -147,16 +147,15 @@ RSpec.describe "Registrations", type: :request do
       end
     end
 
-    context "with the creator_onboarding feature flag" do
+    context "when going through the Creator Onboarding flow" do
       before do
-        allow(FeatureFlag).to receive(:enabled?).with(:creator_onboarding).and_return(true)
         allow(Settings::General).to receive(:waiting_on_first_user).and_return(true)
         allow(Settings::UserExperience).to receive(:public).and_return(false)
       end
 
       it "renders the creator onboarding form" do
         get root_path
-        expect(response.body).to include("Let's start your Forem journey!")
+        expect(response.body).to include(CGI.escapeHTML("Let's start your Forem journey!"))
         expect(response.body).to include("Create your admin account first")
       end
     end
@@ -231,7 +230,7 @@ RSpec.describe "Registrations", type: :request do
         expect(User.all.size).to be 1
       end
 
-      it "marks as registerd" do
+      it "marks as registered" do
         post "/users", params:
         { user: { name: "test #{rand(10)}",
                   username: "haha_#{rand(10)}",
@@ -379,8 +378,8 @@ RSpec.describe "Registrations", type: :request do
                     email: "yoooo#{rand(100)}@yo.co",
                     password: "PaSSw0rd_yo000",
                     password_confirmation: "PaSSw0rd_yo000" } }
-        expect(User.first.has_role?(:super_admin)).to be true
-        expect(User.first.has_role?(:trusted)).to be true
+        expect(User.first.super_admin?).to be true
+        expect(User.first.trusted?).to be true
       end
 
       it "creates mascot user" do
@@ -407,7 +406,7 @@ RSpec.describe "Registrations", type: :request do
                     password: "PaSSw0rd_yo000",
                     forem_owner_secret: "test",
                     password_confirmation: "PaSSw0rd_yo000" } }
-        expect(User.first.has_role?(:super_admin)).to be true
+        expect(User.first.super_admin?).to be true
       end
 
       it "does not authorize request in FOREM_OWNER_SECRET scenario if not passed correct value" do
@@ -437,11 +436,9 @@ RSpec.describe "Registrations", type: :request do
       end
     end
 
-    context "with the creator_onboarding feature flag" do
+    context "when going through the Creator Onboarding flow" do
       before do
         allow_any_instance_of(ProfileImageUploader).to receive(:download!)
-        allow(FeatureFlag).to receive(:enabled?).with(:creator_onboarding).and_return(true)
-        allow(FeatureFlag).to receive(:enabled?).with(:runtime_banner).and_return(false)
         allow(Settings::General).to receive(:waiting_on_first_user).and_return(true)
       end
 
@@ -465,7 +462,7 @@ RSpec.describe "Registrations", type: :request do
                     email: "yoooo#{rand(100)}@yo.co",
                     password: "PaSSw0rd_yo000",
                     password_confirmation: "PaSSw0rd_yo000" } }
-        expect(User.first.has_role?(:super_admin)).to be true
+        expect(User.first.super_admin?).to be true
       end
     end
   end

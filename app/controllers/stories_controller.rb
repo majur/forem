@@ -56,15 +56,8 @@ class StoriesController < ApplicationController
   end
 
   def get_latest_campaign_articles
-    campaign_articles_scope = Article.tagged_with(Campaign.current.featured_tags, any: true)
-      .where("published_at > ? AND score > ?", Settings::Campaign.articles_expiry_time.weeks.ago, 0)
-      .order(hotness_score: :desc)
-
-    requires_approval = Campaign.current.articles_require_approval?
-    campaign_articles_scope = campaign_articles_scope.where(approved: true) if requires_approval
-
-    @campaign_articles_count = campaign_articles_scope.count
-    @latest_campaign_articles = campaign_articles_scope.limit(5).pluck(:path, :title, :comments_count, :created_at)
+    @campaign_articles_count = Campaign.current.count
+    @latest_campaign_articles = Campaign.current.plucked_article_attributes
   end
 
   def redirect_to_changed_username_profile
@@ -87,7 +80,7 @@ class StoriesController < ApplicationController
     potential_username = params[:username].tr("@", "").downcase
     @user = User.find_by("old_username = ? OR old_old_username = ?", potential_username, potential_username)
     if @user&.articles&.find_by(slug: params[:slug])
-      redirect_permanently_to(URI.parse("/#{@user.username}/#{params[:slug]}").path)
+      redirect_permanently_to(Addressable::URI.parse("/#{@user.username}/#{params[:slug]}").path)
       return
     end
 
@@ -242,7 +235,8 @@ class StoriesController < ApplicationController
     else
       @default_home_feed = true
       feed = Articles::Feeds::LargeForemExperimental.new(page: @page, tag: params[:tag])
-      @featured_story, @stories = feed.default_home_feed_and_featured_story(user_signed_in: user_signed_in?)
+      @featured_story, @stories = feed.featured_story_and_default_home_feed(user_signed_in: user_signed_in?)
+      @stories = @stories.to_a
     end
 
     @pinned_article = pinned_article&.decorate
@@ -343,11 +337,11 @@ class StoriesController < ApplicationController
       },
       url: URL.user(@user),
       sameAs: user_same_as,
-      image: Images::Profile.call(@user.profile_image_url, length: 320),
+      image: @user.profile_image_url_for(length: 320),
       name: @user.name,
       email: decorated_user.profile_email,
       description: decorated_user.profile_summary
-    }.reject { |_, v| v.blank? }
+    }.compact_blank
   end
 
   def set_article_json_ld
@@ -405,9 +399,9 @@ class StoriesController < ApplicationController
         "@id": URL.organization(@organization)
       },
       url: URL.organization(@organization),
-      image: Images::Profile.call(@organization.profile_image_url, length: 320),
+      image: @organization.profile_image_url_for(length: 320),
       name: @organization.name,
-      description: @organization.summary.presence || "404 bio not found"
+      description: @organization.summary.presence || I18n.t("stories_controller.404_bio_not_found")
     }
   end
 
@@ -418,6 +412,6 @@ class StoriesController < ApplicationController
       @user.twitter_username.present? ? "https://twitter.com/#{@user.twitter_username}" : nil,
       @user.github_username.present? ? "https://github.com/#{@user.github_username}" : nil,
       @user.profile.website_url,
-    ].reject(&:blank?)
+    ].compact_blank
   end
 end

@@ -16,8 +16,8 @@
 
   &-focus {
     background-color: var(--form-bg-focus);
-    border-color: var(--form-border-focus);
-    box-shadow: 0 0 0 1px var(--form-border-focus);
+    border-color: var(--focus);
+    box-shadow: 0 0 0 1px var(--focus);
   }
 
   &-disabled {
@@ -255,17 +255,48 @@ textarea.crayons-textfield.crayons-textfield--ghost {
 
 ///////////////////////////////////////////////////
 .crayons-color-selector {
+  --swatch-width: var(--su-6);
+  --swatch-height: var(--su-6);
   @extend %form-styling;
   padding: calc(0.5em - var(--border-width)) 0.5em;
   height: 40px;
 
   &::-webkit-color-swatch-wrapper {
     padding: 0;
-    height: var(--su-6);
-    width: var(--su-6);
+    width: var(--swatch-width);
+    height: var(--swatch-height);
   }
 
   &::-webkit-color-swatch {
     border: 0;
+  }
+
+  &--full {
+    width: 100%;
+    --swatch-width: 100%;
+  }
+}
+
+// TODO: cleanup duplicated .crayons-color-selector styles once usages have been replaced with the new component
+.c-color-picker {
+  --swatch-width: var(--su-7);
+  --swatch-height: var(--su-7);
+  --input-padding-left: calc(var(--swatch-width) + var(--su-3));
+
+  &__input {
+    padding-left: var(--input-padding-left);
+  }
+
+  &__swatch {
+    width: var(--swatch-width);
+    height: var(--swatch-height);
+    border: 1px solid var(--swatch-border-color);
+    top: var(--su-1);
+    left: var(--su-1);
+    z-index: var(--z-elevate);
+  }
+
+  &__popover {
+    min-width: min-content;
   }
 }

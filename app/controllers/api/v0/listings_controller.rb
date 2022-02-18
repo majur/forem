@@ -1,7 +1,7 @@
 module Api
   module V0
     class ListingsController < ApiController
-      include Pundit
+      include Pundit::Authorization
       include ListingsToolkit
 
       # actions `create` and `update` are defined in the module `ListingsToolkit`,
@@ -59,7 +59,7 @@ module Api
       alias current_user user
 
       def process_no_credit_left
-        msg = "Not enough available credits"
+        msg = I18n.t("api.v0.listings_controller.no_credit")
         render json: { error: msg, status: 402 }, status: :payment_required
       end
 

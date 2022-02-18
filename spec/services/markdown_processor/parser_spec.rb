@@ -224,7 +224,7 @@ RSpec.describe MarkdownProcessor::Parser, type: :service do
       # rubocop:disable Layout/LineLength
       expected_result = "<p><code>@#{user.username}</code> one two, <a class=\"mentioned-user\" " \
                         "href=\"#{ApplicationConfig['APP_PROTOCOL']}#{ApplicationConfig['APP_DOMAIN']}/#{user.username}\">" \
-                        "@#{user.username}</a>\n three four:</p>\n\n<ul>\n<li><code>@#{user.username}</code></li>\n</ul>\n\n"
+                        "@#{user.username}</a> three four:</p>\n\n<ul>\n<li><code>@#{user.username}</code></li>\n</ul>\n\n"
       # rubocop:enable Layout/LineLength
       expect(result).to eq(expected_result)
     end
@@ -446,6 +446,30 @@ RSpec.describe MarkdownProcessor::Parser, type: :service do
       codeblock = "```\n#{example_text}\n```"
       expect(generate_and_parse_markdown(codeblock)).to include("{%")
       expect(generate_and_parse_markdown(codeblock)).to include("%}")
+    end
+  end
+
+  context "with additional_liquid_tag_options" do
+    it "passes those options to Liquid::Template.parse" do
+      # rubocop:disable RSpec/VerifiedDoubles
+      #
+      # I don't want to delve into the implementation details of liquid to test what the parse
+      # method's return value.
+      parse_response = double("parse_response", render: "liquified!")
+      # rubocop:enable RSpec/VerifiedDoubles
+
+      allow(Liquid::Template).to receive(:parse).and_return(parse_response)
+      described_class.new(
+        "{% liquid example %}",
+        source: :my_source,
+        user: :my_user,
+        policy: :my_policy,
+      ).finalize
+      expect(Liquid::Template).to have_received(:parse)
+        .with(
+          "<p>{% liquid example %}</p>\n",
+          { source: :my_source, policy: :my_policy, user: :my_user },
+        )
     end
   end
 end

@@ -3,6 +3,12 @@ require "rails_helper"
 RSpec.describe Tag, type: :model do
   let(:tag) { build(:tag) }
 
+  describe "#class_name" do
+    subject(:class_name) { tag.class_name }
+
+    it { is_expected.to eq("Tag") }
+  end
+
   describe "validations" do
     describe "builtin validations" do
       subject { tag }
@@ -16,12 +22,6 @@ RSpec.describe Tag, type: :model do
       it { is_expected.not_to allow_value("#Hello", "c++", "AWS-Lambda").for(:name) }
 
       # rubocop:disable RSpec/NamedSubject
-      it do
-        expect(subject).to belong_to(:mod_chat_channel)
-          .class_name("ChatChannel")
-          .optional
-      end
-
       it do
         expect(subject).to validate_inclusion_of(:category)
           .in_array(%w[uncategorized language library tool site_mechanic location subcommunity])
@@ -92,6 +92,11 @@ RSpec.describe Tag, type: :model do
       end
     end
 
+    it "fails validation if name is a prohibited (whitespace) unicode character" do
+      tag.name = "U+202D"
+      expect(tag).not_to be_valid
+    end
+
     describe "alias_for" do
       it "passes validation if the alias refers to an existing tag" do
         tag = create(:tag)
@@ -104,6 +109,12 @@ RSpec.describe Tag, type: :model do
         expect(tag).not_to be_valid
       end
     end
+  end
+
+  it "strips HTML tags from short_summary before saving" do
+    tag.short_summary = "<p>Hello <strong>World</strong>.</p>"
+    tag.save
+    expect(tag.short_summary).to eq("Hello World.")
   end
 
   it "turns markdown into HTML before saving" do
@@ -133,12 +144,6 @@ RSpec.describe Tag, type: :model do
     expect(Rails.cache).to have_received(:delete).with("view-helper-#{tag.name}/tag_colors")
   end
 
-  it "finds mod chat channel" do
-    channel = create(:chat_channel)
-    tag.mod_chat_channel_id = channel.id
-    expect(tag.mod_chat_channel).to eq(channel)
-  end
-
   describe "::aliased_name" do
     it "returns the preferred alias tag" do
       preferred_tag = create(:tag, name: "rails")
@@ -165,6 +170,47 @@ RSpec.describe Tag, type: :model do
 
     it "returns self if there's no preferred tag" do
       expect(described_class.find_preferred_alias_for("something")).to eq("something")
+    end
+  end
+
+  describe ".followed_tags_for" do
+    let(:saved_user) { create(:user) }
+    let(:tag1) { create(:tag) }
+    let(:tag2) { create(:tag) }
+    let(:tag3) { create(:tag) }
+
+    it "returns empty if no tags followed" do
+      expect(described_class.followed_tags_for(follower: saved_user).size).to eq(0)
+    end
+
+    it "returns array of tags if user follows them" do
+      saved_user.follow(tag1)
+      saved_user.follow(tag2)
+      saved_user.follow(tag3)
+      expect(described_class.followed_tags_for(follower: saved_user).size).to eq(3)
+    end
+
+    it "returns tag object with name" do
+      saved_user.follow(tag1)
+      expect(described_class.followed_tags_for(follower: saved_user).first.name).to eq(tag1.name)
+    end
+
+    it "returns follow points for tag" do
+      saved_user.follow(tag1)
+      expect(described_class.followed_tags_for(follower: saved_user).first.points).to eq(1.0)
+    end
+
+    it "returns adjusted points for tag" do
+      follow = saved_user.follow(tag1)
+      follow.update(explicit_points: 0.1)
+
+      expect(described_class.followed_tags_for(follower: saved_user).first.points).to eq(0.1)
+    end
+  end
+
+  describe "#points" do
+    it "defaults to 0" do
+      expect(described_class.new.points).to eq(0)
     end
   end
 end

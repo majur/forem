@@ -12,7 +12,6 @@ module Api
           domain: Settings::General.app_domain,
           logo_image_url: Settings::General.logo_png,
           name: Settings::Community.community_name,
-          registered_users_count: User.registered.estimated_count,
           tagline: Settings::Community.tagline,
           version: release_version,
           visibility: visibility

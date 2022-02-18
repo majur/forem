@@ -15,7 +15,7 @@ RSpec.describe "UserSettings", type: :request do
       before { sign_in user }
 
       it "renders various settings tabs properly" do
-        Settings.tab_list.each do |tab|
+        Constants::Settings::TAB_LIST.each do |tab|
           get user_settings_path(tab.downcase.tr(" ", "-"))
 
           expect(response.body).to include("Settings for")
@@ -53,7 +53,7 @@ RSpec.describe "UserSettings", type: :request do
         expect(response.body).to include("Email notifications", "Mobile notifications", "General notifications")
       end
 
-      it "displays moderator notifications secons on Notifications tab if trusted" do
+      it "displays moderator notifications second on Notifications tab if trusted" do
         user.add_role(:trusted)
 
         get user_settings_path(:notifications)
@@ -83,8 +83,7 @@ RSpec.describe "UserSettings", type: :request do
         get user_settings_path(:extensions)
 
         feed_section = "Publishing to #{Settings::Community.community_name} from RSS"
-        stackbit_section = "Generate a personal blog from your #{Settings::Community.community_name} posts"
-        titles = ["Comment templates", "Connect settings", feed_section, "Web monetization", stackbit_section]
+        titles = ["Comment templates", feed_section, "Web monetization"]
         expect(response.body).to include(*titles)
       end
 
@@ -389,7 +388,7 @@ RSpec.describe "UserSettings", type: :request do
         expect(response).to redirect_to("/settings/account")
 
         error =
-          "An error occurred. Please try again or send an email to: #{ForemInstance.email}"
+          "An error occurred. Please try again or send an email to: #{ForemInstance.contact_email}"
         expect(flash[:error]).to eq(error)
       end
 
@@ -432,7 +431,7 @@ RSpec.describe "UserSettings", type: :request do
         delete users_remove_identity_path, params: { provider: provider }
 
         error =
-          "An error occurred. Please try again or send an email to: #{ForemInstance.email}"
+          "An error occurred. Please try again or send an email to: #{ForemInstance.contact_email}"
         expect(flash[:error]).to eq(error)
       end
 

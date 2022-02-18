@@ -18,19 +18,40 @@ class UserDecorator < ApplicationDecorator
     },
   ].freeze
 
-  DEFAULT_PROFILE_SUMMARY = "404 bio not found".freeze
+  DEFAULT_PROFILE_SUMMARY = -> { I18n.t("stories_controller.404_bio_not_found") }
 
+  # The relevant attribute names for cached tags.  These are the attributes that we'll make
+  # available in the front-end.  The list comes from the two places (see below for that list).
+  #
+  # @see app/controllers/async_info_controller.rb
+  # @see app/services/articles/feeds/article_score_calculator_for_user.rb
+  CACHED_TAGGED_BY_USER_ATTRIBUTES = %i[bg_color_hex hotness_score id name points text_color_hex].freeze
+
+  # A proxy for a Tag object.  In app/services/articles/feeds/article_score_calculator_for_user.rb
+  # we rely on method calls to the object.  (e.g. "tag.name").  This class helps us conform to that
+  # expectation.
+  #
+  # @note A Struct in Rails can be cast "to_json" and uses its attributes.
+  #
+  # @see https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/object/json.rb#L68-L72
+  CachedTagByUser = Struct.new(*CACHED_TAGGED_BY_USER_ATTRIBUTES, keyword_init: true)
+
+  # Return the relevant tags that the user follows and their points.
+  #
+  # @note We want to avoid caching ActiveRecord objects.
+  #
+  # @return [Array<UserDecorator::CachedTagByUser>]
   def cached_followed_tags
-    follows_map = Rails.cache.fetch("user-#{id}-#{following_tags_count}-#{last_followed_at&.rfc3339}/followed_tags",
-                                    expires_in: 20.hours) do
-      Follow.follower_tag(id).pluck(:followable_id, :points).to_h
+    cached_tag_attributes = Rails.cache.fetch(
+      "user-#{id}-#{following_tags_count}-#{last_followed_at&.rfc3339}/user_followed_tags",
+      expires_in: 20.hours,
+    ) do
+      Tag.followed_tags_for(follower: object).map { |tag| tag.slice(*CACHED_TAGGED_BY_USER_ATTRIBUTES) }
     end
 
-    tags = Tag.where(id: follows_map.keys).order(hotness_score: :desc)
-    tags.each do |tag|
-      tag.points = follows_map[tag.id]
+    cached_tag_attributes.map do |cached_tag|
+      CachedTagByUser.new(cached_tag)
     end
-    tags
   end
 
   def darker_color(adjustment = 0.88)
@@ -55,14 +76,10 @@ class UserDecorator < ApplicationDecorator
     body_class = [
       setting.config_theme.tr("_", "-"),
       "#{setting.resolved_font_name.tr('_', '-')}-article-body",
-      "trusted-status-#{trusted}",
+      "trusted-status-#{trusted?}",
       "#{setting.config_navbar.tr('_', '-')}-header",
     ]
     body_class.join(" ")
-  end
-
-  def dark_theme?
-    setting.config_theme == "night_theme" || setting.config_theme == "ten_x_hacker_theme"
   end
 
   def assigned_color
@@ -101,15 +118,8 @@ class UserDecorator < ApplicationDecorator
     articles_count.zero? && comments_count.zero? && suspended?
   end
 
-  def stackbit_integration?
-    access_tokens.any?
-  end
-
   def considered_new?
-    min_days = Settings::RateLimit.user_considered_new_days
-    return false unless min_days.positive?
-
-    created_at.after?(min_days.days.ago)
+    Settings::RateLimit.user_considered_new?(user: self)
   end
 
   # Returns the user's public email if it is set and the display_email_on_profile
@@ -122,7 +132,7 @@ class UserDecorator < ApplicationDecorator
 
   # Returns the users profile summary or a placeholder text
   def profile_summary
-    profile.summary.presence || DEFAULT_PROFILE_SUMMARY
+    profile.summary.presence || DEFAULT_PROFILE_SUMMARY.call
   end
 
   delegate :display_sponsors, to: :setting

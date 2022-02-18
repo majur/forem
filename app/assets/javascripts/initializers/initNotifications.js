@@ -21,11 +21,7 @@ function markNotificationsAsRead() {
         10,
       );
 
-      if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
-      } else {
-        xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
-      }
+      xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function () {};
 
       var csrfToken = document.querySelector("meta[name='csrf-token']").content;
@@ -70,6 +66,8 @@ function initReactions() {
 
       for (var i = 0; i < butts.length; i++) {
         var butt = butts[i];
+        butt.setAttribute('aria-pressed', butt.classList.contains('reacted'));
+
         butt.onclick = function (event) {
           event.preventDefault();
           sendHapticMessage('medium');
@@ -79,8 +77,10 @@ function initReactions() {
           function successCb(response) {
             if (response.result === 'create') {
               thisButt.classList.add('reacted');
+              thisButt.setAttribute('aria-pressed', true);
             } else {
               thisButt.classList.remove('reacted');
+              thisButt.setAttribute('aria-pressed', false);
             }
           }
 

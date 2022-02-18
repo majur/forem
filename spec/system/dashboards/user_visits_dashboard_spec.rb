@@ -12,7 +12,7 @@ RSpec.describe "Dashboard", type: :system, js: true do
     it "shows the count of unspent credits" do
       Credit.add_to(user, 2)
 
-      Credits::Buyer.call(
+      Credits::Buy.call(
         purchaser: user,
         purchase: listing,
         cost: 1,
@@ -22,8 +22,8 @@ RSpec.describe "Dashboard", type: :system, js: true do
 
       visit dashboard_path
 
-      within "main#main-content > section" do
-        expect(page).to have_text("1\nCredits available")
+      within "main#main-content > header" do
+        expect(page).to have_text(/1\nCredits available/)
       end
     end
   end

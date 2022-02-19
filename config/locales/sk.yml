@@ -2,22 +2,22 @@
 en:
   contact_prompts:
     if_any_questions_html: <a href="/contact">Kontaktujte nás</a> ak máte nejaké otázky.
-    if_continued_trouble_html: <a href="/contact">Kontaktujte nás</a> if you continue having trouble.
-    if_we_can_help_html: <a href="/contact">Kontaktujte nás</a> if there is anything we can help with.
+    if_continued_trouble_html: <a href="/contact">Kontaktujte nás</a> ak máte problém.
+    if_we_can_help_html: <a href="/contact">Kontaktujte nás</a> ak vám vieme s niečim pomôcť.
   core:
-    add_comment: Add comment
+    add_comment: Pridať komentár
     beta: beta
-    comment: Comment
-    copy_link: Copy link
-    edit_profile: Edit profile
-    follow: Follow
-    follow_back: Follow back
-    following: Following
+    comment: Komentár
+    copy_link: Kopírovať link
+    edit_profile: Upraviť profil
+    follow: Sledovať
+    follow_back: Sledovať späť
+    following: Sledovanie
     like: Like
-    loading: loading...
-    reaction: Reaction
-    report_abuse: Report abuse
-    search: Search
+    loading: načítavam...
+    reaction: Reakcia
+    report_abuse: Nahlásiť obťažovanie
+    search: Hľadať
   datetime:
     distance_in_words_ago: # https://github.com/openstreetmap/openstreetmap-website/issues/2255
       about_x_hours:

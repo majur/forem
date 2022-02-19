@@ -64,6 +64,8 @@ module PracticalDeveloper
 
     config.i18n.fallbacks = [:en]
 
+    config.i18n.default_locale = :sk
+
     # Authorization / Authentication exception handling.
     config.action_dispatch.rescue_responses["Pundit::NotAuthorizedError"] = :not_found
 

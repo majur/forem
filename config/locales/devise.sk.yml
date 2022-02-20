@@ -43,7 +43,7 @@ en:
       signed_up_but_unconfirmed: Na vašu e-mailovú adresu bola odoslaná správa s potvrdzovacím odkazom. Postupujte podľa odkazu a aktivujte svoje konto.
       update_needs_confirmation: Úspešne ste aktualizovali svoje konto, ale potrebujeme overiť vašu novú e-mailovú adresu. Skontrolujte, prosím, svoju e-mailovú adresu a nasledovaním potvrdzujúceho odkazu potvrďte svoju novú e-mailovú adresu.
       updated: Vaše konto bolo úspešne aktualizované.
-      updated_but_not_signed_in: Účet je aktualizovaný: Vaše konto bolo úspešne aktualizované, ale keďže bolo zmenené vaše heslo, musíte sa znova prihlásiť.
+      updated_but_not_signed_in: Účet je aktualizovaný. Vaše konto bolo úspešne aktualizované, ale keďže bolo zmenené vaše heslo, musíte sa znova prihlásiť.
     sessions:
       already_signed_out: Úspešne ste sa odhlásili.
       signed_in: Úspešne prihlásené.

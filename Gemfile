@@ -2,7 +2,7 @@
 
 git_source(:github) { |name| "https://github.com/#{name}.git" }
 source "https://rubygems.org"
-ruby 3.0.6
+ruby File.read(File.join(File.dirname(__FILE__), ".ruby-version")).strip
 
 group :production do
   gem "hypershield", "~> 0.2.2" # Allow admins to query data via internal

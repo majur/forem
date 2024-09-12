@@ -1,0 +1,64 @@
+---
+en:
+  devise:
+    confirmations:
+      confirmed: Vaša e-mailová adresa bola úspešne potvrdená.
+      send_instructions: O niekoľko minút dostanete e-mail s pokynmi, ako potvrdiť svoju e-mailovú adresu.
+      send_paranoid_instructions: Ak vaša e-mailová adresa existuje v našej databáze, v priebehu niekoľkých minút dostanete e-mail s pokynmi na potvrdenie vašej e-mailovej adresy.
+    failure:
+      already_authenticated: Už ste prihlásený.
+      inactive: Vaše konto ešte nie je aktivované.
+      invalid: Neplatné %{authentication_keys} alebo heslo.
+      last_attempt: Pred zablokovaním konta máte ešte jeden pokus.
+      locked: Vaše konto je zablokované.
+      not_found_in_database: Neplatné %{authentication_keys} alebo heslo.
+      timeout: Vaša relácia vypršala. Ak chcete pokračovať, prihláste sa znova.
+      unauthenticated: Pred pokračovaním sa musíte prihlásiť alebo zaregistrovať.
+      unconfirmed: Pred pokračovaním musíte potvrdiť svoju e-mailovú adresu.
+    mailer:
+      confirmation_instructions:
+        subject: Pokyny na potvrdenie
+      email_changed:
+        subject: Zmenený e-mail
+      password_change:
+        subject: Zmenené heslo
+      reset_password_instructions:
+        subject: Pokyny na obnovenie hesla
+      unlock_instructions:
+        subject: Pokyny na odomknutie
+    omniauth_callbacks:
+      failure: Nemožno vás overiť z %{kind}, pretože "%{reason}".
+      success: Úspešne overené z konta %{kind}.
+    passwords:
+      no_token: Na túto stránku sa nedostanete bez toho, aby ste prišli z e-mailu o obnovení hesla. Ak prichádzate z e-mailu na obnovenie hesla, uistite sa, že ste použili celú poskytnutú adresu URL.
+      send_instructions: V prípade, že ste zadali heslo, ktoré sa má odoslať, je potrebné, aby ste ho odoslali. V priebehu niekoľkých minút dostanete e-mail s pokynmi na resetovanie hesla.
+      send_paranoid_instructions: Ak vaša e-mailová adresa existuje v našej databáze, do niekoľkých minút dostanete na svoju e-mailovú adresu odkaz na obnovenie hesla.
+      updated: Vaše heslo bolo úspešne zmenené. Teraz ste prihlásený.
+      updated_not_active: Vaše heslo bolo úspešne zmenené.
+    registrations:
+      destroyed: Ahoj! Váš účet bol úspešne zrušený. Dúfame, že sa čoskoro opäť uvidíme.
+      signed_up: Vitajte! Úspešne ste sa zaregistrovali.
+      signed_up_but_inactive: Úspešne ste sa zaregistrovali. Nemohli sme vás však prihlásiť, pretože vaše konto ešte nie je aktivované.
+      signed_up_but_locked: Úspešne ste sa zaregistrovali. Nemohli sme vás však prihlásiť, pretože vaše konto je zablokované.
+      signed_up_but_unconfirmed: Na vašu e-mailovú adresu bola odoslaná správa s potvrdzovacím odkazom. Postupujte podľa odkazu a aktivujte svoje konto.
+      update_needs_confirmation: Úspešne ste aktualizovali svoje konto, ale potrebujeme overiť vašu novú e-mailovú adresu. Skontrolujte, prosím, svoju e-mailovú adresu a nasledovaním potvrdzujúceho odkazu potvrďte svoju novú e-mailovú adresu.
+      updated: Vaše konto bolo úspešne aktualizované.
+      updated_but_not_signed_in: Účet je aktualizovaný. Vaše konto bolo úspešne aktualizované, ale keďže bolo zmenené vaše heslo, musíte sa znova prihlásiť.
+    sessions:
+      already_signed_out: Úspešne ste sa odhlásili.
+      signed_in: Úspešne prihlásené.
+      signed_out: Úspešne odhlásený.
+    unlocks:
+      send_instructions: V priebehu niekoľkých minút dostanete e-mail s pokynmi, ako odomknúť svoje konto.
+      send_paranoid_instructions: Ak váš účet existuje, za niekoľko minút dostanete e-mail s pokynmi, ako ho odomknúť.
+      odomknuté: Váš účet bol úspešne odomknutý. Ak chcete pokračovať, prihláste sa.
+  errors:
+    messages:
+      already_confirmed: bol už potvrdený, skúste sa prihlásiť
+      confirmation_period_expired: je potrebné potvrdiť do %{period}, vyžiadajte si novú
+      expired: vypršala platnosť, vyžiadajte si novú
+      not_found: nenájdené
+      not_locked: nebol uzamknutý
+      not_saved:
+        one: '1 chyba zabránila uloženiu tohto %{resource}:'
+        other: "%{count} chyby zakázali uloženie tohto %{resource}:"
